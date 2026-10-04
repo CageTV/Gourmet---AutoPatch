@@ -14,7 +14,8 @@ This add-on does that work at game start, for every mod, with no patch plugin:
   RESTORE   when a mod that loads after Gourmet turns one of Gourmet's foods (raw beef, say) back into a vanilla one, Gourmet's own definition is put
             back. (In a typical load order this happens to dozens of foods.)
   SELL      converted foods are added to the matching Gourmet vendor lists (butchers, grocers, inns, brewers), a few per list, so a food from another
-            mod turns up in stock like Gourmet's own.
+            mod turns up in stock like Gourmet's own. Empty containers ("Empty Wine Bottle"), spoilage stages ("Moldy ...", "Spoiled ...", "Ruined ...")
+            and leftovers are never put on sale; a food you place by hand on the Foods page always is.
   SURVIVAL  converted foods get Survival Mode's hunger effect like Gourmet's, and raw meat goes on Survival's raw-meat list (food poisoning).
 
 Nothing is saved to your game and no plugin is added: the changes are made in memory while the game loads. Remove the add-on and everything is as
@@ -48,6 +49,14 @@ REQUIRES
 - Gourmet - A Cooking Overhaul 1.2.0 (Nexus 96876)
 - SKSE64 and the Address Library for SKSE Plugins for your game version
 - SKSE Menu Framework 3 (Nexus 120352), optional: only for the pages
+
+WHICH BUILD (the installer asks)
+--------------------------------
+Two builds of the same plugin are included, because the SKSE library they are made with differs by game version:
+  Skyrim 1.6.1170 and newer (SE / AE)     the "new" build. Works on 1.6.1170 and on every later version, including 1.7.x.
+  Skyrim VR, or 1.6.1130 and older        the "older" build.
+The installer picks the one that fits your game version and always lets you change it. On 1.6.1170 both work. Install only one: both files are
+named GourmetAutoPatch.dll.
 
 KNOWN LIMITS
 ------------

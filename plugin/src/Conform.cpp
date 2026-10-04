@@ -292,7 +292,7 @@ namespace Conform
 			auto*                       dh = DH();
 			std::map<std::string, int>  order;  // source -> load order position
 			for (const char* s : gdata::kSources) {
-				if (const auto* f = dh->LookupLoadedModByName(s)) {
+				if (const auto* f = dh->LookupModByName(s)) {
 					order[s] = f->GetCombinedIndex();
 				}
 			}
@@ -525,10 +525,13 @@ namespace Conform
 				return;
 			}
 			const std::size_t total = oldCount + add;
-			auto*             arr = static_cast<RE::LEVELED_OBJECT*>(RE::malloc(sizeof(RE::LEVELED_OBJECT) * total));
-			if (!arr) {
+			// the game's SimpleArray keeps its element count in a size_t just before the first element, and other plugins read it (entries.size(), range-for)
+			auto* block = static_cast<std::size_t*>(RE::malloc(sizeof(std::size_t) + sizeof(RE::LEVELED_OBJECT) * total));
+			if (!block) {
 				return;
 			}
+			*block    = total;
+			auto* arr = reinterpret_cast<RE::LEVELED_OBJECT*>(block + 1);
 			auto* old = a_list->numEntries ? a_list->entries.data() : nullptr;
 			if (old) {
 				std::memcpy(arr, old, sizeof(RE::LEVELED_OBJECT) * oldCount);
@@ -541,7 +544,7 @@ namespace Conform
 				o.pad0C = 0;
 				o.itemExtra = nullptr;
 			}
-			// the list's entries are a plain pointer plus numEntries; the game never reads a size header, so the array is swapped as it is
+			// the old block is left alone (it may be shared with the master's data); the list now points at the new, headed array
 			*reinterpret_cast<RE::LEVELED_OBJECT**>(&a_list->entries) = arr;
 			a_list->numEntries = static_cast<std::uint8_t>(total);
 		}
@@ -559,6 +562,30 @@ namespace Conform
 			return s + " " + std::to_string(l.tier) + " %";
 		}
 
+		// foods that must never turn up in a merchant's stock: containers, spoilage stages of other mods (Last Seed), leftovers.
+		// A food the user placed by hand on the Foods page is never held back.
+		bool NotForSale(const Entry& a_e)
+		{
+			if (a_e.source == Source::Override) {
+				return false;
+			}
+			auto lower = [](std::string s) {
+				std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+				return s;
+			};
+			const auto n = lower(a_e.name);
+			const auto id = lower(a_e.editorId);
+			if (n.rfind("empty ", 0) == 0 || n.rfind("leftovers", 0) == 0 || id.rfind("leftovers", 0) == 0) {
+				return true;
+			}
+			for (const char* w : { "moldy", "spoiled", "ruined", "rotten", "rotting" }) {
+				if (n.find(w) != std::string::npos) {
+					return true;
+				}
+			}
+			return false;
+		}
+
 		void Distribute()
 		{
 			const auto& cfg = Config::Get();
@@ -573,7 +600,7 @@ namespace Conform
 				}
 				std::vector<Entry*> cand;
 				for (auto& e : entries) {
-					if ((e.source == Source::Auto || e.source == Source::Rule || e.source == Source::Override) && Matches(l, e)) {
+					if ((e.source == Source::Auto || e.source == Source::Rule || e.source == Source::Override) && !NotForSale(e) && Matches(l, e)) {
 						cand.push_back(&e);
 					}
 				}
@@ -683,7 +710,7 @@ namespace Conform
 	bool Run()
 	{
 		auto* dh = DH();
-		if (!dh || !dh->LookupLoadedModByName("Gourmet.esp")) {
+		if (!dh || !dh->LookupModByName("Gourmet.esp")) {
 			SKSE::log::info("Gourmet.esp is not loaded: nothing to do");
 			return false;
 		}

@@ -24,3 +24,8 @@ SOFTWARE.
 This license covers the files written for this repository. It does not cover Gourmet - A Cooking Overhaul (by Simon Magus, Jelidity and wolll), whose
 records this add-on reads at run time and none of which are included, nor plugin/include/SKSEMenuFramework.h (the SKSE Menu Framework 3 project's SDK
 header, included unmodified under its own terms). plugin/src/GourmetData.h lists FormIDs, effect values and keywords of Gourmet.esp.
+
+The "new" build of GourmetAutoPatch.dll is linked against CommonLibSSE-NG by alandtse (https://github.com/alandtse/commonlibvr, branch ng), which is
+GPL-3.0 with a modding exception, so that binary is also distributed under those terms; the "older" build is linked against CommonLibSSE-NG by
+CharmedBaryon (MIT). The source for this add-on is in this repository.
+

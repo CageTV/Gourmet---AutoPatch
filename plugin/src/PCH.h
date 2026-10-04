@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <RE/Skyrim.h>
 #include <SKSE/SKSE.h>
@@ -9,6 +9,7 @@
 
 #include <algorithm>
 #include <atomic>
+#include <cctype>
 #include <chrono>
 #include <cstring>
 #include <deque>
