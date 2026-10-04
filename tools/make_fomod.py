@@ -30,12 +30,14 @@ for k, p in SOURCES.items():
     d = os.path.join(DEST, k, "SKSE", "Plugins")
     os.makedirs(d)
     shutil.copyfile(p, os.path.join(d, DLL))
+shutil.copytree(os.path.join(HERE, "assets", "Interface"), os.path.join(DEST, "common", "Interface"))
 os.makedirs(os.path.join(DEST, "fomod"))
 
 NEW_VER = "1.6.1170.0"
 config = f"""<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://qconsulting.ca/fo3/ModConfig5.0.xsd">
   <moduleName>Gourmet - AutoPatch</moduleName>
   <requiredInstallFiles>
+    <folder source="common" destination=""/>
     <file source="README.txt" destination="Gourmet - AutoPatch README.txt"/>
     <file source="LICENSE.txt" destination="Gourmet - AutoPatch LICENSE.txt"/>
   </requiredInstallFiles>

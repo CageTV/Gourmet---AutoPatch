@@ -104,8 +104,25 @@ namespace Menu
 			}
 		}
 
+		constexpr const char* kLogoPath = "Data\\Interface\\gourmet\\gourmet_logo.png";
+		constexpr float       kLogoAspect = 480.0f / 1024.0f;
+
+		void Logo()
+		{
+			static ImTextureID tex = SKSEMenuFramework::LoadTexture(kLogoPath);
+			if (!tex) {
+				return;
+			}
+			const float avail = GetContentRegionAvail().x;
+			const float w = std::min(avail, 460.0f);
+			SetCursorPosX(GetCursorPosX() + (avail - w) * 0.5f);
+			Image(tex, ImVec2(w, w * kLogoAspect));
+			Spacing();
+		}
+
 		void __stdcall RenderOverview()
 		{
+			Logo();
 			SeparatorText("Gourmet AutoPatch");
 			if (!Conform::Active()) {
 				TextColored(ImVec4(1.0f, 0.55f, 0.45f, 1.0f), "Gourmet - A Cooking Overhaul is not loaded, or its records were not found.");
