@@ -68,4 +68,4 @@ KNOWN LIMITS
 CREDITS
 -------
 Gourmet is by Simon Magus, Jelidity and wolll: this add-on only reads its records (effects, keywords, leveled lists) and ships none of its files.
-Add-on by CageTV. GPL-3.0-or-later (LICENSE.txt). Source: https://github.com/CageTV/Gourmet---AutoPatch
+Add-on by CageTV. MIT License (LICENSE.txt). Source: https://github.com/CageTV/Gourmet---AutoPatch
