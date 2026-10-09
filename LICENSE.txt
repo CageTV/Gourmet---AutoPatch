@@ -21,7 +21,7 @@ NOT COVERED BY THIS LICENSE
 
 BUILDS
 - "older" GourmetAutoPatch.dll: linked against CommonLibSSE-NG by CharmedBaryon (MIT).
-- "new" GourmetAutoPatch.dll: linked against CommonLibSSE-NG by alandtse, which is GPL-3.0-or-later with a modding exception (see below).
+- "new" GourmetAutoPatch.dll: linked against CommonLibSSE-NG by alandtse, 
 
 ======================================================================================================================================================
 Third-party library in the "new" GourmetAutoPatch.dll
