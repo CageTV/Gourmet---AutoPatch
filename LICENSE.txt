@@ -24,12 +24,6 @@ BUILDS
 - "new" GourmetAutoPatch.dll: linked against CommonLibSSE-NG by alandtse, 
 
 ======================================================================================================================================================
-Third-party library in the "new" GourmetAutoPatch.dll
-
-The "new" GourmetAutoPatch.dll statically links CommonLibSSE-NG by alandtse (https://github.com/alandtse/CommonLibVR, branch ng), which is licensed
-GPL-3.0-or-later with a modding exception and a linking exception. That library's own terms apply to that one binary: it is a combined work, and its
-complete source is this repository. The GPL-3.0 text of that library follows at the end of this file. The files written for this repository stay under
-the MIT License above; MIT is GPL-compatible, as that library's README requires. The "older" GourmetAutoPatch.dll does not contain it.
 
 ======================================================================================================================================================
 
