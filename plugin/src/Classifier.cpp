@@ -308,8 +308,9 @@ namespace gclass
 		if (animal && !(breadWord && !Find(words, kPart) && *breadWord != "loaf" && *breadWord != "roll")) {
 			const bool partWord = Find(words, kPart) != nullptr;
 			bool       raw = a_in.rawKeyword ? !cooked : (rawWord != nullptr || (!cooked && !a_in.warmth));
-			// a bare "Venison" or "Bear Meat" is raw; "Horker Loaf", "Rabbit Haunch", "Salmon Steak" and the like are cooked
-			if (cooked) {
+			// a bare "Venison" or "Bear Meat" is raw; "Horker Loaf", "Rabbit Haunch", "Salmon Steak" and the like are cooked, unless the name says
+			// "Raw" ("Raw Bear Steak": the cut, not a cooked dish)
+			if (cooked && !rawWord) {
 				raw = false;
 			}
 			if (a_in.recipeIngredients >= 1 && !rawWord && !a_in.rawKeyword && !partWord) {
