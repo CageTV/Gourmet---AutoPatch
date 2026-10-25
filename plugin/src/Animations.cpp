@@ -63,10 +63,20 @@ namespace Animations
 				return "JugOfMilk";
 			}
 			// words that name the dish whatever kind the classifier gave it (a 50 % chicken soup is a "stew" in Gourmet's terms, but a soup bowl in hand)
-			if (has({ "cider" })) return "Ale";
+			if (has({ "cider", "alenog" })) return "Ale";
+			if (has({ "jam", "jelly", "preserve", "preserves" }) && !has({ "dumpling", "dumplings" })) return "Honey";
+			if (has({ "cream" }) && !has({ "soup", "treat", "creme" })) return "JugOfMilk";
+			if (has({ "gravlax" })) return "SalmonSteak";
+			if (has({ "coq" })) return "BeefStew";
+			if (has({ "surprise" }) && has({ "seafood" })) return "ClamChowder";
+			if (has({ "flapjack", "flapjacks", "sweetcake", "cake", "cakes", "pancake", "pancakes" })) return "SweetRoll";
+			if (has({ "eyebread" })) return "Bread";
+			if (has({ "mamoth" })) return a_raw ? "MammothSnout" : "MammothSteak";  // Last Seed's "Salted Mamoth"
+			if (has({ "canine" })) return a_raw ? "DogMeat" : "CookedBeef";
+			if (has({ "berries", "blueberries", "grapes", "cherries" }) && !has({ "pie", "tart", "juice" })) return "RedApple";
 			if (has({ "dumpling", "dumplings" })) return "Dumpling";
 			if (has({ "chowder" })) return "ClamChowder";
-			if (has({ "soup", "broth", "porridge", "bisque" })) {
+			if (has({ "soup", "broth", "porridge", "bisque", "potage", "soupe", "bouillabaisse" })) {
 				if (has({ "tomato" })) return "TomatoSoup";
 				if (has({ "potato" })) return has({ "cabbage" }) ? "CabbagePotatoSoup" : "PotatoSoup";
 				if (has({ "cabbage" })) return "CabbageSoup";
@@ -243,7 +253,10 @@ namespace Animations
 				type = c.type;
 			}
 			const bool  isRaw = in.rawKeyword || (c.ok && c.raw);
-			const char* key = (c.ok || type != gclass::Type::None) ? Pick(gclass::Words(e.name), type, isRaw, c.ok && c.drink) : nullptr;
+			// the dish names in Pick also catch foods the classifier has no rule for (Gravlax, Coq au Vin...); what it turned down on purpose (water,
+			// tea, potions, salt...) stays without an animation
+			const bool  rejected = !c.ok && c.why.rfind("not a regular food", 0) == 0;
+			const char* key = rejected ? nullptr : Pick(gclass::Words(e.name), type, isRaw, c.ok && c.drink);
 			if (key && Give(item, key)) {
 				++added;
 				SKSE::log::info("Eating animation: {} ({}) -> {}", e.name, e.plugin, key);
