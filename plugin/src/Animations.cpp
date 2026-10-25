@@ -62,6 +62,28 @@ namespace Animations
 			if (has({ "milk" })) {
 				return "JugOfMilk";
 			}
+			// words that name the dish whatever kind the classifier gave it (a 50 % chicken soup is a "stew" in Gourmet's terms, but a soup bowl in hand)
+			if (has({ "cider" })) return "Ale";
+			if (has({ "dumpling", "dumplings" })) return "Dumpling";
+			if (has({ "chowder" })) return "ClamChowder";
+			if (has({ "soup", "broth", "porridge", "bisque" })) {
+				if (has({ "tomato" })) return "TomatoSoup";
+				if (has({ "potato" })) return has({ "cabbage" }) ? "CabbagePotatoSoup" : "PotatoSoup";
+				if (has({ "cabbage" })) return "CabbageSoup";
+				return "VegetableSoup";
+			}
+			if (has({ "pie", "pies", "tart", "tarts", "quiche", "pasty", "crostata" })) {
+				if (has({ "jazbay" })) return "JazbayCrostata";
+				if (has({ "snowberry" })) return "SnowberryCrostata";
+				if (has({ "juniper", "crostata" })) return "JuniperBerryCrostata";
+				return "Pie";
+			}
+			if (has({ "bread", "loaf", "roll", "rolls" }) && !has({ "sweet", "sweetroll", "horker", "meat" })) {
+				if (has({ "garlic" })) return "GarlicBread";
+				if (has({ "braided" })) return "BraidedBread";
+				if (has({ "potato" })) return "PotatoBread";
+				return "Bread";
+			}
 			if (a_drink || a_type == T::Ale || a_type == T::Wine) {
 				if (has({ "honningbrew" })) return "HonningbrewMead";
 				if (has({ "briar" })) return "BlackBriarMead";
@@ -122,7 +144,7 @@ namespace Animations
 				if (has({ "leek", "leeks" })) return has({ "grilled" }) ? "GrilledLeeks" : "Leek";
 				if (has({ "tomato", "tomatoes" })) return "Tomato";
 				if (has({ "gourd" })) return "Gourd";
-				if (has({ "yam" })) return "AshYam";
+				if (has({ "yam", "yams" })) return "AshYam";
 				return "Carrot";
 			case T::Fish:
 				if (has({ "salmon" })) return a_raw ? "SalmonMeat" : "SalmonSteak";
@@ -227,6 +249,7 @@ namespace Animations
 				SKSE::log::info("Eating animation: {} ({}) -> {}", e.name, e.plugin, key);
 			} else {
 				++none;
+				SKSE::log::info("Eating animation: {} ({}) -> none ({})", e.name, e.plugin, c.ok ? "no close vanilla food" : c.why);
 			}
 		}
 		SKSE::log::info("Eating animations: {} foods already animated by Eating Animations and Sounds or a patch, {} given the animation of the closest vanilla food, "
