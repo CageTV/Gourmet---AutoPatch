@@ -1,4 +1,4 @@
-Gourmet - AutoPatch 1.0.0
+Gourmet - AutoPatch 1.1.0
 An SKSE add-on for Gourmet - A Cooking Overhaul (Nexus 96876) by Simon Magus, Jelidity and wolll.
 
 WHAT IT DOES
@@ -17,9 +17,14 @@ This add-on does that work at game start, for every mod, with no patch plugin:
             mod turns up in stock like Gourmet's own. Empty containers ("Empty Wine Bottle"), spoilage stages ("Moldy ...", "Spoiled ...", "Ruined ...")
             and leftovers are never put on sale; a food you place by hand on the Foods page always is.
   SURVIVAL  converted foods get Survival Mode's hunger effect like Gourmet's, and raw meat goes on Survival's raw-meat list (food poisoning).
+  NEEDS     with Last Seed or CACO, every food that follows Gourmet (its own and the converted ones) gets the food keywords they read, from its
+            Gourmet type and tier (meat, fish, stew, bread...; light / medium / filling / hearty), so Last Seed knows it at once instead of asking
+            you to classify it the first time you eat it. A food that already has such a keyword is left as it is.
+            With Frostfall, Gourmet's stews, soups, chowders and hot pies get Frostfall's warm-food keyword: they warm you like vanilla stews.
+            Last Seed's spoiled foods and Frostfall's own warming meal and drinks are never converted: they keep what their mod gave them.
 
 Nothing is saved to your game and no plugin is added: the changes are made in memory while the game loads. Remove the add-on and everything is as
-the mods made it. Foods that already follow Gourmet (its own, and any with a Gourmet patch) are never touched.
+the mods made it. Foods that already follow Gourmet (its own, and any with a Gourmet patch) keep their effects; they only get the keywords above.
 
 Recipes are left alone: another mod's recipes work as that mod made them (they are not locked behind Gourmet's cookbooks).
 

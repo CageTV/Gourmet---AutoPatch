@@ -18,7 +18,7 @@ namespace gclass
 		using WordSet = std::unordered_set<std::string>;
 
 		const WordSet kSkip = { "potion", "poison", "skooma", "eversnow", "sleeping", "balmora", "tonic", "elixir", "coffee", "tea", "cocoa", "water", "juice",
-			                    "homecooked", "marriage", "bonemeal", "bone", "moon", "sugar", "powder", "salt", "spice", "spices", "herb", "herbs", "seed", "seeds" };
+			                    "homecooked", "marriage", "bonemeal", "bone", "moon", "sugar", "powder", "salt", "spice", "spices", "herb", "herbs", "seed", "seeds", "empty" };
 		const WordSet kWineDrink = { "wine", "bloodwine", "brandy", "liqueur", "cognac", "port", "sherry", "champagne", "vermouth", "sake", "sujamma", "flin", "wines" };
 		const WordSet kAleDrink = { "ale", "mead", "beer", "lager", "stout", "rum", "whiskey", "whisky", "grog", "brew", "bock", "moonshine", "vodka", "gin", "shein",
 			                        "mazte", "rye", "absinthe", "schnapps", "ales", "meads", "briar", "honningbrew" };

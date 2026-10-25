@@ -4,7 +4,7 @@
  *
  * Released under the MIT License; see LICENSE.txt.
  */
-﻿#pragma once
+#pragma once
 
 #include <RE/Skyrim.h>
 #include <SKSE/SKSE.h>

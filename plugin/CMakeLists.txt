@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.21)
 
 # GourmetAutoPatch.dll - an SKSE add-on for Gourmet - A Cooking Overhaul: makes other mods' foods follow Gourmet's rules at game start, so they
 # need no patch plugin, and shows what it did in SKSE Menu Framework.
-project(GourmetAutoPatch VERSION 1.0.0 LANGUAGES CXX)
+project(GourmetAutoPatch VERSION 1.1.0 LANGUAGES CXX)
 
 find_package(CommonLibSSE CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)

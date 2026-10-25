@@ -25,6 +25,15 @@ namespace Conform
 			RE::BGSKeyword *   stewHot{}, *chowderHot{}, *pieHot{};
 			RE::BGSKeyword *   vendorFood{}, *vendorRaw{};
 			RE::BGSListForm*   rawMeat{};
+			// The food keywords Last Seed and CACO read, and Frostfall's warm-food keyword. Both mods inject them into Update.esm with the same
+			// FormIDs, so they are found whichever of them is loaded (normal or ESL build) and are absent when none is.
+			RE::BGSKeyword*    seedType[15]{};   // by gclass::Type
+			RE::BGSKeyword *   seedStewComplex{}, *seedPastryLarge{}, *seedCheeseBowl{}, *seedAlcohol[3]{};  // weak, moderate, strong
+			RE::BGSKeyword*    seedHunger[4]{};  // light, medium, filling, hearty
+			std::vector<RE::BGSKeyword*> seedAll;  // every food or drink kind keyword: a food that has one is already described
+			RE::BGSKeyword*    warmFood{};
+			RE::BGSListForm*   lsSpoiled{};      // Last Seed's spoiled stages of foods (_Seed_SpoiledFoods)
+			RE::TESForm*       ffInternal[4]{};  // Frostfall's hidden hearty meal and strong brews, which Last Seed hands out and drinks for you
 			bool               ok = false;
 		} A;
 
@@ -42,6 +51,18 @@ namespace Conform
 		{
 			auto* dh = DH();
 			return dh ? dh->LookupForm<T>(a_id, a_file) : nullptr;
+		}
+
+		// a form of Last Seed or Frostfall, which come as a normal plugin or as an ESL build with every FormID renumbered: the id that fits the loaded build
+		template <class T>
+		T* LookBuild(unsigned a_normal, unsigned a_esl, const char* a_file)
+		{
+			auto*       dh = DH();
+			const auto* file = dh ? dh->LookupModByName(a_file) : nullptr;
+			if (!file) {
+				return nullptr;
+			}
+			return dh->LookupForm<T>(file->IsLight() ? a_esl : a_normal, a_file);
 		}
 
 		bool EqualNoCase(std::string_view a, std::string_view b)
@@ -91,6 +112,40 @@ namespace Conform
 			A.vendorFood = Look<RE::BGSKeyword>(0x08CDEA, "Skyrim.esm");
 			A.vendorRaw = Look<RE::BGSKeyword>(0x0A0E56, "Skyrim.esm");
 			A.rawMeat = Look<RE::BGSListForm>(0x8B0, "ccqdrsse001-survivalmode.esl");
+			{
+				auto kw = [](unsigned a_id) { return Look<RE::BGSKeyword>(a_id, "Update.esm"); };
+				// Meat, Fish, Crab, Stew, Soup, Chowder, Pie, Vegetable, Fruit, Bread, Cheese, Dessert (ale and wine go by strength below)
+				const unsigned seedIds[15] = { 0, 0xAF1004, 0xAF1007, 0xAF1006, 0xAF1012, 0xAF1012, 0xAF1012, 0xAF1010, 0xAF1009, 0xAF1008, 0xAF100F, 0xAF100A, 0xAF1011, 0, 0 };
+				for (int i = 1; i < 15; ++i) {
+					A.seedType[i] = seedIds[i] ? kw(seedIds[i]) : nullptr;
+				}
+				A.seedStewComplex = kw(0xD9FF03);
+				A.seedPastryLarge = kw(0xD9FF02);
+				A.seedCheeseBowl = kw(0xAF100B);
+				A.seedAlcohol[0] = kw(0xAF101A);
+				A.seedAlcohol[1] = kw(0xD9FF04);
+				A.seedAlcohol[2] = kw(0xD9FF05);
+				for (int i = 0; i < 4; ++i) {
+					A.seedHunger[i] = kw(0xD9FF08 + i);
+				}
+				// the kinds above plus small game, milk, non-alcoholic drinks, skooma and blood potions
+				for (unsigned id : { 0xAF1004u, 0xAF1005u, 0xAF1006u, 0xAF1007u, 0xAF1008u, 0xAF1009u, 0xAF100Au, 0xAF100Bu, 0xAF100Fu, 0xAF1010u, 0xAF1011u, 0xAF1012u,
+				                     0xAF101Au, 0xAF101Bu, 0xAF101Du, 0xD9FF02u, 0xD9FF03u, 0xD9FF04u, 0xD9FF05u, 0xD9FF06u, 0xD9FF07u, 0xD9FF0Eu }) {
+					if (auto* k = kw(id)) {
+						A.seedAll.push_back(k);
+					}
+				}
+				A.warmFood = kw(0xCC0E08);  // FrostfallWarmFoodDrinkKeyword
+				SKSE::log::info("Survival keywords: Last Seed / CACO food keywords {}, Frostfall warm-food keyword {}", A.seedAll.empty() ? "not loaded" : "found",
+				                A.warmFood ? "found" : "not loaded");
+			}
+			A.lsSpoiled = LookBuild<RE::BGSListForm>(0x009BD3, 0x0008BB, "LastSeed.esp");
+			// _Frost_FoodEffectPotion, _Frost_DrinkEffectPotion1..3 (the same ids Last Seed's scripts look up)
+			const unsigned ffNormal[4] = { 0x066B5F, 0x01CEBD, 0x01CEBF, 0x01CEC1 };
+			const unsigned ffEsl[4] = { 0x000A1F, 0x00084B, 0x00084C, 0x00084D };
+			for (int i = 0; i < 4; ++i) {
+				A.ffInternal[i] = LookBuild<RE::TESForm>(ffNormal[i], ffEsl[i], "Frostfall.esp");
+			}
 			if (!A.corrector || !A.fortStamina || !A.dmgMagicka || !A.fortMagicka || !A.dmgStamina) {
 				SKSE::log::warn("some of Gourmet's effects were not found: drinks and the corrector effect may be skipped");
 			}
@@ -290,6 +345,63 @@ namespace Conform
 			}
 		}
 
+		void AddKeyword(Entry& e, RE::BGSKeyword* a_kw)
+		{
+			if (a_kw && !e.item->HasKeyword(a_kw)) {
+				e.item->AddKeyword(a_kw);
+				e.addedKeywords.push_back(a_kw);
+			}
+		}
+
+		// Gives a food that follows Gourmet the keywords Last Seed (and CACO) and Frostfall read, from its Gourmet type and tier, so Last Seed
+		// knows it without asking the player to classify it and a hot dish warms in Frostfall. A food that already has a Last Seed kind is left as it is.
+		void AddSurvivalKeywords(Entry& e)
+		{
+			auto* it = e.item;
+			int   type = 0;
+			for (int i = 1; i < 15 && !type; ++i) {
+				if (A.type[i] && it->HasKeyword(A.type[i])) {
+					type = i;
+				}
+			}
+			if (!type) {
+				return;
+			}
+			const bool hot = (A.stewHot && it->HasKeyword(A.stewHot)) || (A.chowderHot && it->HasKeyword(A.chowderHot)) || (A.pieHot && it->HasKeyword(A.pieHot));
+			const auto t = static_cast<gclass::Type>(type);
+			if (A.warmFood && (t == gclass::Type::Stew || t == gclass::Type::Soup || t == gclass::Type::Chowder || hot)) {
+				AddKeyword(e, A.warmFood);
+			}
+			if (A.seedAll.empty() || std::any_of(A.seedAll.begin(), A.seedAll.end(), [&](auto* k) { return it->HasKeyword(k); })) {
+				return;
+			}
+			float tier = 0.0f;
+			for (auto* fx : it->effects) {
+				const auto* m = fx ? fx->baseEffect : nullptr;
+				if (m && (m == A.regen[0] || m == A.regen[1] || m == A.regen[2] || m == A.fortStamina || m == A.fortMagicka)) {
+					tier = std::max(tier, fx->effectItem.magnitude);
+				}
+			}
+			const int step = tier >= 50.0f ? 2 : tier >= 25.0f ? 1 : 0;
+			if (t == gclass::Type::Ale || t == gclass::Type::Wine) {
+				AddKeyword(e, A.seedAlcohol[std::min(2, step + (t == gclass::Type::Wine ? 1 : 0))]);
+				return;
+			}
+			RE::BGSKeyword* kind = A.seedType[type];
+			bool            hearty = false;
+			if (step == 2 && (t == gclass::Type::Stew || t == gclass::Type::Chowder)) {
+				kind = A.seedStewComplex;
+				hearty = true;
+			} else if (step == 2 && t == gclass::Type::Pie) {
+				kind = A.seedPastryLarge;
+				hearty = true;
+			} else if (t == gclass::Type::Cheese && e.name.find("Bowl") != std::string::npos) {
+				kind = A.seedCheeseBowl;
+			}
+			AddKeyword(e, kind);
+			AddKeyword(e, A.seedHunger[hearty ? 3 : step]);
+		}
+
 		// ---- the foods Gourmet itself defines ----------------------------------------------------------------------------------
 		std::map<std::pair<std::string, unsigned>, const gdata::RefFood*> refTable;  // (plugin, local id) -> the entry of the source loaded last
 
@@ -343,6 +455,20 @@ namespace Conform
 				}
 			}
 			return false;
+		}
+
+		// an item a survival mod keeps for its own mechanics, which must keep the effects that mod gave it
+		const char* SurvivalItem(const RE::AlchemyItem* it)
+		{
+			if (A.lsSpoiled && A.lsSpoiled->HasForm(it)) {
+				return "a spoiled stage of a food (Last Seed): it keeps Last Seed's effects";
+			}
+			for (auto* f : A.ffInternal) {
+				if (f && f == it) {
+					return "Frostfall's own warming meal or drink, which Last Seed hands out and drinks for you";
+				}
+			}
+			return nullptr;
 		}
 
 		bool Harmful(const RE::AlchemyItem* it)
@@ -450,6 +576,9 @@ namespace Conform
 					e.source = Source::Left;
 					e.note = "Gourmet's definition could not be resolved";
 				}
+			} else if (const char* why = SurvivalItem(e.item)) {
+				e.source = Source::Excluded;
+				e.note = why;
 			} else if (Harmful(e.item)) {
 				e.source = Source::Excluded;
 				e.note = "has harmful effects (a poison or similar)";
@@ -488,6 +617,9 @@ namespace Conform
 			}
 			if (apply) {
 				ApplyPlan(e, plan, replaceHunger);
+			}
+			if (apply || e.source == Source::Native) {
+				AddSurvivalKeywords(e);
 			}
 			e.after = Describe(e.item->effects);
 		}
@@ -584,7 +716,7 @@ namespace Conform
 			if (n.rfind("empty ", 0) == 0 || n.rfind("leftovers", 0) == 0 || id.rfind("leftovers", 0) == 0) {
 				return true;
 			}
-			for (const char* w : { "moldy", "spoiled", "ruined", "rotten", "rotting" }) {
+			for (const char* w : { "moldy", "spoiled", "ruined", "rotten", "rotting", "rank " }) {
 				if (n.find(w) != std::string::npos) {
 					return true;
 				}
