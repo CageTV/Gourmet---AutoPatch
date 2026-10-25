@@ -32,6 +32,7 @@ namespace Conform
 			RE::BGSKeyword*    seedHunger[4]{};  // light, medium, filling, hearty
 			std::vector<RE::BGSKeyword*> seedAll;  // every food or drink kind keyword: a food that has one is already described
 			RE::BGSKeyword*    warmFood{};
+			RE::BGSKeyword*    easMarker{};      // aa_EAAS: on every eating-animation effect of Eating Animations and Sounds and its patches
 			RE::BGSListForm*   lsSpoiled{};      // Last Seed's spoiled stages of foods (_Seed_SpoiledFoods)
 			RE::AlchemyItem*   ffInternal[4]{};  // Frostfall's hidden hearty meal and strong brews, which Last Seed hands out and drinks for you
 			bool               ok = false;
@@ -139,6 +140,7 @@ namespace Conform
 				SKSE::log::info("Survival keywords: Last Seed / CACO food keywords {}, Frostfall warm-food keyword {}", A.seedAll.empty() ? "not loaded" : "found",
 				                A.warmFood ? "found" : "not loaded");
 			}
+			A.easMarker = Look<RE::BGSKeyword>(0x19BB69, "TaberuAnimation.esp");
 			A.lsSpoiled = LookBuild<RE::BGSListForm>(0x009BD3, 0x0008BB, "LastSeed.esp");
 			// _Frost_FoodEffectPotion, _Frost_DrinkEffectPotion1..3 (the same ids Last Seed's scripts look up)
 			const unsigned ffNormal[4] = { 0x066B5F, 0x01CEBD, 0x01CEBF, 0x01CEC1 };
@@ -302,14 +304,35 @@ namespace Conform
 			return p;
 		}
 
+		// Eating-animation effects another mod added after this add-on read the food (SkyPatcher patches for Eating Animations and Sounds run later
+		// at data load): they carry EAS's marker keyword aa_EAAS and must survive a revert or a re-apply from the menu.
+		std::vector<RE::Effect*> LateAnimationEffects(const Entry& e)
+		{
+			std::vector<RE::Effect*> out;
+			if (!A.easMarker) {
+				return out;
+			}
+			for (auto* fx : e.item->effects) {
+				if (fx && fx->baseEffect && fx->baseEffect->HasKeyword(A.easMarker) &&
+					std::find(e.origEffects.begin(), e.origEffects.end(), fx) == e.origEffects.end()) {
+					out.push_back(fx);
+				}
+			}
+			return out;
+		}
+
 		void Revert(Entry& e)
 		{
 			auto* it = e.item;
 			if (!it) {
 				return;
 			}
+			const auto late = LateAnimationEffects(e);
 			it->effects.clear();
 			for (auto* fx : e.origEffects) {
+				it->effects.push_back(fx);
+			}
+			for (auto* fx : late) {
 				it->effects.push_back(fx);
 			}
 			for (auto* kw : e.addedKeywords) {
@@ -322,12 +345,16 @@ namespace Conform
 		// replaces the food's nutrition and hunger effects with the plan's effects (every other effect stays), and adds the plan's keywords
 		void ApplyPlan(Entry& e, const Plan& a_plan, bool a_replaceHunger)
 		{
-			auto* it = e.item;
+			auto*      it = e.item;
+			const auto late = LateAnimationEffects(e);
 			it->effects.clear();
 			for (auto* fx : e.origEffects) {
 				if (IsNutrition(fx) || (a_replaceHunger && fx && IsHunger(fx->baseEffect))) {
 					continue;
 				}
+				it->effects.push_back(fx);
+			}
+			for (auto* fx : late) {
 				it->effects.push_back(fx);
 			}
 			for (const auto& pe : a_plan.effects) {
@@ -858,6 +885,18 @@ namespace Conform
 
 	bool Active() { return active; }
 	const std::deque<Entry>& Entries() { return entries; }
+
+	bool OwnedOrHarmful(const RE::AlchemyItem* a_item) { return a_item && (SurvivalItem(a_item) || Harmful(a_item)); }
+
+	gclass::Type GourmetType(const RE::AlchemyItem* a_item)
+	{
+		for (int i = 1; i < 15; ++i) {
+			if (A.type[i] && a_item->HasKeyword(A.type[i])) {
+				return static_cast<gclass::Type>(i);
+			}
+		}
+		return gclass::Type::None;
+	}
 	const std::vector<ListInfo>& Lists() { return lists; }
 	int Count(Source s) { return counts[static_cast<int>(s)]; }
 	int AddedToLists() { return addedToLists; }

@@ -63,4 +63,9 @@ namespace Conform
 	// Redo every food after the settings changed
 	void ReapplyAll();
 	void WriteReport();
+
+	// An item a survival mod keeps for its own mechanics (Last Seed's spoiled foods, Frostfall's own meal and drinks), or one with harmful effects
+	bool OwnedOrHarmful(const RE::AlchemyItem* a_item);
+	// The Gourmet type keyword the food carries, or Type::None
+	gclass::Type GourmetType(const RE::AlchemyItem* a_item);
 }

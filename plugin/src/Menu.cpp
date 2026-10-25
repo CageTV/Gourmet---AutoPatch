@@ -6,6 +6,7 @@
  */
 #include "PCH.h"
 #include "Menu.h"
+#include "Animations.h"
 #include "Conform.h"
 #include "Config.h"
 #include "GourmetData.h"
@@ -192,6 +193,12 @@ namespace Menu
 			Setting("Survival Mode effects", cfg.survival, "Give converted foods Survival Mode's hunger effect, and list raw meat in Survival's raw-meat list (food poisoning).");
 			Setting("Gourmet's Food Corrector on 25 % foods", cfg.foodCorrector, "Gourmet's own cooked 25 % foods carry its Food Corrector effect; converted ones get it too.");
 			Setting("Convert CACO's own foods too", cfg.convertCaco, "Off: CACO's foods keep CACO's effects, which grow with CACO's cooking skill. On: they get Gourmet's buffs like any other mod's food.");
+			if (Animations::EasInstalled()) {
+				Setting("Eating animations for foods no patch covers", cfg.animations,
+					"With Eating Animations and Sounds: every food that has no animation from EAS or one of its patches gets the animation of the closest vanilla food "
+					"(applied when a game is loaded). Install EAS's own patches (Gourmet, CACO...) for exact props; this fills the rest.");
+				TextDisabled("Eating animations given this session: %d", Animations::Added());
+			}
 			int cap = cfg.maxAddedPerList;
 			SetNextItemWidth(200.0f);
 			if (SliderInt("Most foods added to one vendor list", &cap, 0, 20)) {

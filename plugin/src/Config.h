@@ -27,6 +27,7 @@ namespace Config
 		bool survival = true;      // Survival Mode hunger effects on converted foods and Survival's raw-meat list
 		bool foodCorrector = true; // Gourmet's "Food Corrector" effect on 25 % cooked foods, like Gourmet's own
 		bool convertCaco = false;  // also convert CACO's own foods (off: CACO runs its own food system, scaled by its cooking skill)
+		bool animations = true;    // foods no Eating Animations and Sounds patch covers get the animation of the closest vanilla food
 		int  maxAddedPerList = 6;  // most foods added to any one vendor list, so Gourmet's own foods stay in the majority
 		std::vector<std::string> excludePlugins;
 		std::vector<Rule>        rules;

@@ -13,6 +13,7 @@ add_commonlibsse_plugin(${PROJECT_NAME} NAME "GourmetAutoPatch" AUTHOR "CageTV" 
     src/Classifier.cpp
     src/Conform.cpp
     src/Menu.cpp
+    src/Animations.cpp
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_23)

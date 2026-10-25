@@ -146,6 +146,7 @@ namespace Config
 			b("survival", settings.survival);
 			b("foodCorrector", settings.foodCorrector);
 			b("convertCaco", settings.convertCaco);
+			b("animations", settings.animations);
 			if (j.contains("maxAddedPerList") && j["maxAddedPerList"].is_number_integer()) {
 				settings.maxAddedPerList = std::clamp(j["maxAddedPerList"].get<int>(), 0, 50);
 			}
@@ -180,6 +181,7 @@ namespace Config
 		nlohmann::json j;
 		j["_help"] = "Gourmet AutoPatch settings. enabled/conform/enforce/distribute/survival: switch parts off (a restart applies them). "
 		             "convertCaco: also give CACO's own foods Gourmet's effects (off by default: CACO runs its own food system). "
+		             "animations: with Eating Animations and Sounds, foods no EAS patch covers get the animation of the closest vanilla food. "
 		             "excludePlugins: plugin file names whose foods are never touched. rules: [{\"match\": \"regex on the name\", \"plugin\": \"optional.esp\", "
 		             "\"class\": \"H25:Meat\" or \"skip\"}]. class = stat H(ealth)/S(tamina)/M(agicka) or A(le)/W(ine), tier 10/25/50, r = raw, then :type, :hot. "
 		             "overrides are written by the in-game Foods page.";
@@ -190,6 +192,7 @@ namespace Config
 		j["survival"] = settings.survival;
 		j["foodCorrector"] = settings.foodCorrector;
 		j["convertCaco"] = settings.convertCaco;
+		j["animations"] = settings.animations;
 		j["maxAddedPerList"] = settings.maxAddedPerList;
 		j["excludePlugins"] = settings.excludePlugins;
 		j["rules"] = nlohmann::json::array();

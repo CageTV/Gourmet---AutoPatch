@@ -24,6 +24,11 @@ This add-on does that work at game start, for every mod, with no patch plugin:
             Last Seed's spoiled foods and Frostfall's own warming meal and drinks are never converted: they keep what their mod gave them.
   CACO      when Complete Alchemy and Cooking Overhaul is loaded, its own foods keep CACO's effects (they grow with CACO's cooking skill and many
             are cooking ingredients); everything else is handled as above. "convertCaco": true (or the switch on the Overview page) converts them too.
+  ANIMATE   with Eating Animations and Sounds (EAS): when a game is loaded, every food that has no eating animation from EAS or one of its patches
+            gets the animation of the closest vanilla food (by name where it can - horker loaf, salmon steak, tomato soup, Eidar cheese - otherwise by
+            kind: raw or cooked meat, stew, soup, bread, cheese, dessert, ale, wine). For the exact props of Gourmet's and CACO's own foods install EAS's
+            patches as well (Gourmet - Eating Animations and Sounds Patch; Eating Animations - Patch Collection with its Skypatched Collection): the
+            foods they animate are left to them. "animations": false switches this off.
 
 Nothing is saved to your game and no plugin is added: the changes are made in memory while the game loads. Remove the add-on and everything is as
 the mods made it. Foods that already follow Gourmet (its own, and any with a Gourmet patch) keep their effects; they only get the keywords above.

@@ -7,6 +7,7 @@
 #include "PCH.h"
 #include "Config.h"
 #include "Conform.h"
+#include "Animations.h"
 #include "Menu.h"
 
 namespace
@@ -41,6 +42,13 @@ namespace
 				}
 			} else {
 				SKSE::log::info("switched off in config.json");
+			}
+			break;
+		case SKSE::MessagingInterface::kPostLoadGame:
+		case SKSE::MessagingInterface::kNewGame:
+			// by now every SkyPatcher patch of Eating Animations and Sounds has added its animation effects, so the foods still without one are known
+			if (Config::Get().enabled && Conform::Active()) {
+				Animations::Apply();
 			}
 			break;
 		default:
