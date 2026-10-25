@@ -1,4 +1,4 @@
-Gourmet - AutoPatch 1.1.0
+Gourmet - AutoPatch 1.2.0
 An SKSE add-on for Gourmet - A Cooking Overhaul (Nexus 96876) by Simon Magus, Jelidity and wolll.
 
 WHAT IT DOES
