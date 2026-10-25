@@ -551,6 +551,9 @@ namespace Conform
 			} else if (std::any_of(cfg.excludePlugins.begin(), cfg.excludePlugins.end(), [&](const std::string& p) { return EqualNoCase(p, fileName); })) {
 				e.source = Source::Excluded;
 				e.note = "its plugin is in excludePlugins";
+			} else if (!cfg.convertCaco && EqualNoCase(fileName, "complete alchemy & cooking overhaul.esp")) {
+				e.source = Source::Excluded;
+				e.note = "a CACO food: CACO runs its own food system (its effects grow with CACO's cooking skill); convertCaco in config.json converts it";
 			} else if (IsGourmetSourceFile(fileName) || HasGourmetEffect(e.item)) {
 				e.source = Source::Native;
 				e.note = "already follows Gourmet's rules";

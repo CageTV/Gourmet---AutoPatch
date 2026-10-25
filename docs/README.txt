@@ -22,6 +22,8 @@ This add-on does that work at game start, for every mod, with no patch plugin:
             you to classify it the first time you eat it. A food that already has such a keyword is left as it is.
             With Frostfall, Gourmet's stews, soups, chowders and hot pies get Frostfall's warm-food keyword: they warm you like vanilla stews.
             Last Seed's spoiled foods and Frostfall's own warming meal and drinks are never converted: they keep what their mod gave them.
+  CACO      when Complete Alchemy and Cooking Overhaul is loaded, its own foods keep CACO's effects (they grow with CACO's cooking skill and many
+            are cooking ingredients); everything else is handled as above. "convertCaco": true (or the switch on the Overview page) converts them too.
 
 Nothing is saved to your game and no plugin is added: the changes are made in memory while the game loads. Remove the add-on and everything is as
 the mods made it. Foods that already follow Gourmet (its own, and any with a Gourmet patch) keep their effects; they only get the keywords above.
@@ -41,6 +43,7 @@ YOUR OWN RULES
 --------------
 Data/SKSE/Plugins/GourmetAutoPatch/config.json (created on first start; with Mod Organizer 2 it lands in your Overwrite folder):
   "conform", "enforce", "distribute", "survival", "foodCorrector"   switch parts off
+  "convertCaco"                                                      also convert CACO's own foods (default false)
   "maxAddedPerList"                                                  most foods added to one vendor list (default 6)
   "excludePlugins": ["Some Mod.esp"]                                 never touch that plugin's foods
   "rules": [ { "match": "regex on the food's name", "plugin": "optional.esp", "class": "S25:Soup" } ]

@@ -191,6 +191,7 @@ namespace Menu
 			Setting("Add converted foods to vendor lists", cfg.distribute, "Converted foods are added to the matching Gourmet vendor lists (butchers, grocers, inns, drinks). Applied at the next start.");
 			Setting("Survival Mode effects", cfg.survival, "Give converted foods Survival Mode's hunger effect, and list raw meat in Survival's raw-meat list (food poisoning).");
 			Setting("Gourmet's Food Corrector on 25 % foods", cfg.foodCorrector, "Gourmet's own cooked 25 % foods carry its Food Corrector effect; converted ones get it too.");
+			Setting("Convert CACO's own foods too", cfg.convertCaco, "Off: CACO's foods keep CACO's effects, which grow with CACO's cooking skill. On: they get Gourmet's buffs like any other mod's food.");
 			int cap = cfg.maxAddedPerList;
 			SetNextItemWidth(200.0f);
 			if (SliderInt("Most foods added to one vendor list", &cap, 0, 20)) {
