@@ -33,7 +33,7 @@ namespace Conform
 			std::vector<RE::BGSKeyword*> seedAll;  // every food or drink kind keyword: a food that has one is already described
 			RE::BGSKeyword*    warmFood{};
 			RE::BGSListForm*   lsSpoiled{};      // Last Seed's spoiled stages of foods (_Seed_SpoiledFoods)
-			RE::TESForm*       ffInternal[4]{};  // Frostfall's hidden hearty meal and strong brews, which Last Seed hands out and drinks for you
+			RE::AlchemyItem*   ffInternal[4]{};  // Frostfall's hidden hearty meal and strong brews, which Last Seed hands out and drinks for you
 			bool               ok = false;
 		} A;
 
@@ -143,8 +143,13 @@ namespace Conform
 			// _Frost_FoodEffectPotion, _Frost_DrinkEffectPotion1..3 (the same ids Last Seed's scripts look up)
 			const unsigned ffNormal[4] = { 0x066B5F, 0x01CEBD, 0x01CEBF, 0x01CEC1 };
 			const unsigned ffEsl[4] = { 0x000A1F, 0x00084B, 0x00084C, 0x00084D };
+			int ffFound = 0;
 			for (int i = 0; i < 4; ++i) {
-				A.ffInternal[i] = LookBuild<RE::TESForm>(ffNormal[i], ffEsl[i], "Frostfall.esp");
+				A.ffInternal[i] = LookBuild<RE::AlchemyItem>(ffNormal[i], ffEsl[i], "Frostfall.esp");
+				ffFound += A.ffInternal[i] ? 1 : 0;
+			}
+			if (DH()->LookupModByName("LastSeed.esp") || DH()->LookupModByName("Frostfall.esp")) {
+				SKSE::log::info("Left to their mods: Last Seed's spoiled foods {}, Frostfall's own meal and drinks {} of 4", A.lsSpoiled ? "found" : "NOT FOUND", ffFound);
 			}
 			if (!A.corrector || !A.fortStamina || !A.dmgMagicka || !A.fortMagicka || !A.dmgStamina) {
 				SKSE::log::warn("some of Gourmet's effects were not found: drinks and the corrector effect may be skipped");
@@ -355,7 +360,8 @@ namespace Conform
 
 		// Gives a food that follows Gourmet the keywords Last Seed (and CACO) and Frostfall read, from its Gourmet type and tier, so Last Seed
 		// knows it without asking the player to classify it and a hot dish warms in Frostfall. A food that already has a Last Seed kind is left as it is.
-		void AddSurvivalKeywords(Entry& e)
+		// a_fallback: the type read from the name, for the few foods Gourmet gives no type keyword (Cooked Dog, Chicken Breast...)
+		void AddSurvivalKeywords(Entry& e, gclass::Type a_fallback)
 		{
 			auto* it = e.item;
 			int   type = 0;
@@ -363,6 +369,9 @@ namespace Conform
 				if (A.type[i] && it->HasKeyword(A.type[i])) {
 					type = i;
 				}
+			}
+			if (!type) {
+				type = static_cast<int>(a_fallback);
 			}
 			if (!type) {
 				return;
@@ -622,7 +631,12 @@ namespace Conform
 				ApplyPlan(e, plan, replaceHunger);
 			}
 			if (apply || e.source == Source::Native) {
-				AddSurvivalKeywords(e);
+				gclass::Type fallback = e.cls.ok ? e.cls.type : gclass::Type::None;
+				if (fallback == gclass::Type::None) {
+					const auto c = gclass::Classify(MakeInput(e));
+					fallback = c.ok ? c.type : gclass::Type::None;
+				}
+				AddSurvivalKeywords(e, fallback);
 			}
 			e.after = Describe(e.item->effects);
 		}
