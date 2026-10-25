@@ -307,12 +307,9 @@ namespace gclass
 		// ---- meat, fish and shellfish: raw or cooked ---------------------------------------------------------------------------
 		if (animal && !(breadWord && !Find(words, kPart) && *breadWord != "loaf" && *breadWord != "roll")) {
 			const bool partWord = Find(words, kPart) != nullptr;
-			bool       raw = a_in.rawKeyword ? !cooked : (rawWord != nullptr || (!cooked && !a_in.warmth));
 			// a bare "Venison" or "Bear Meat" is raw; "Horker Loaf", "Rabbit Haunch", "Salmon Steak" and the like are cooked, unless the name says
 			// "Raw" ("Raw Bear Steak": the cut, not a cooked dish)
-			if (cooked && !rawWord) {
-				raw = false;
-			}
+			bool raw = rawWord != nullptr || (a_in.rawKeyword ? !cooked : (!cooked && !a_in.warmth));
 			if (a_in.recipeIngredients >= 1 && !rawWord && !a_in.rawKeyword && !partWord) {
 				raw = false;  // made at a cooking pot, so it is a dish
 			}
