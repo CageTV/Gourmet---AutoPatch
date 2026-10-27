@@ -923,8 +923,19 @@ namespace Conform
 				n = std::max(n, static_cast<int>(cobj->requiredItems.numContainerObjects));
 			}
 		}
+		// Ingestibles other mods flag as food that are not meals, found by a keyword their mod puts on them: Hunting in Skyrim's 73 trap baits ("Deer Musk",
+		// "Wolf Chow", "Fox Lure" ...) carry the FoodItem flag and the vendor-food keyword. They are left exactly as their mod made them.
+		std::vector<RE::BGSKeyword*> notFoodKeywords;
+		if (auto* bait = dh->LookupForm<RE::BGSKeyword>(0x13B64A, "Hunting in Skyrim.esp")) {  // HISTrapBaitKeyword
+			notFoodKeywords.push_back(bait);
+		}
+		std::size_t skippedNotFood = 0;
 		for (auto* item : dh->GetFormArray<RE::AlchemyItem>()) {
 			if (!item || item->IsDeleted() || !item->IsFood() || item->IsPoison()) {
+				continue;
+			}
+			if (std::any_of(notFoodKeywords.begin(), notFoodKeywords.end(), [&](auto* kw) { return item->HasKeyword(kw); })) {
+				++skippedNotFood;
 				continue;
 			}
 			auto& e = entries.emplace_back();
@@ -943,6 +954,9 @@ namespace Conform
 				e.origEffects.push_back(fx);
 			}
 			e.before = Describe(item->effects);
+		}
+		if (skippedNotFood) {
+			SKSE::log::info("Conform: {} ingestibles left alone (trap baits, not meals)", skippedNotFood);
 		}
 		for (auto& e : entries) {
 			Process(e);
